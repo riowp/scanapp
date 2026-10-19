@@ -17,23 +17,29 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - uses: android-actions/setup-android@v3
-
-      - uses: gradle/actions/setup-gradle@v4
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
         with:
-          gradle-version: '8.1.1'
+          accept-android-sdk-licenses: true
+          cmdline-tools-version: 11076708
+
+      - name: Make gradlew executable
+        working-directory: BS_v41/BarcodeScanner
+        run: chmod +x gradlew
 
       - name: Build APK
-        run: gradle assembleDebug --no-daemon
+        working-directory: BS_v41/BarcodeScanner
+        run: ./gradlew assembleDebug --no-daemon
 
       - name: Rename APK
         run: |
           mkdir -p output
-          find app/build/outputs/apk/debug/ -name "*.apk" -exec cp {} output/PenerimaanSDJ-v${{ github.run_number }}.apk \;
+          find BS_v41/BarcodeScanner/app/build/outputs/apk/debug/ -name "*.apk" \
+            -exec cp {} output/DumpScan-v${{ github.run_number }}.apk \;
           ls -la output/
 
       - uses: actions/upload-artifact@v4
         with:
-          name: PenerimaanSDJ-APK-v${{ github.run_number }}
-          path: output/PenerimaanSDJ-v${{ github.run_number }}.apk
+          name: DumpScan-APK-v${{ github.run_number }}
+          path: output/DumpScan-v${{ github.run_number }}.apk
           retention-days: 90
